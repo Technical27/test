@@ -20,6 +20,7 @@
     nix-index
     neofetch
     steam
+    zoom-us
   ];
 
   xdg.mimeApps.enable = true;
