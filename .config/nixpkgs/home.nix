@@ -106,11 +106,11 @@
     enable = true;
     shellInit = ''
       set FZF_DEFAULT_OPTS '--color bg+:-1'
+      set SHELL 'bash'
+      set EDITOR 'nvim'
     '';
     shellAliases = {
       make = "make -j8";
-      nvim = "SHELL=bash command nvim";
-      sudo = "SHELL=bash EDITOR=nvim command sudo";
     };
   };
 
