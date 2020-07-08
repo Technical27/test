@@ -114,6 +114,60 @@
     };
   };
 
+  wayland.windowManager.sway = {
+    enable = true;
+    extraConfig = let
+      amixer = "exec amixer -q set Master";
+      brctl = "exec brightnessctl set";
+    in ''
+      seat seat0 xcursor_theme default 48
+
+      bindsym XF86AudioRaiseVolume ${amixer} 10%+ unmute
+      bindsym XF86AudioLowerVolume ${amixer} 10%- unmute
+      bindsym XF86AudioMute ${amixer} toggle
+
+      bindsym XF86MonBrightnessUp ${brctl} 10%+
+      bindsym XF86MonBrightnessDown ${brctl} 10%-
+
+      default_border none
+    '';
+    wrapperFeatures.gtk = true;
+    xwayland = true;
+    systemdIntegration = false;
+
+    config = {
+      output = {
+        "eDP-1" = {
+          scale = "2";
+          bg = "~/Pictures/wallpaper.jpg fill";
+        };
+      };
+      input = {
+        "1739:30383:DELL07E6:00_06CB:76AF_Touchpad" = {
+          tap = "enabled";
+          natural_scroll = "enabled";
+          pointer_accel = "0.3";
+          dwt = "enabled";
+        };
+      };
+      bars = [{ command = "${pkgs.waybar}/bin/waybar"; }];
+      gaps.inner = 10;
+      terminal = "kitty";
+      modifier = "Mod4";
+      menu = "wofi --show drun";
+      startup = [
+        {
+          command = ''
+            exec swayidle -w \
+              timeout 300 'swaylock -f -c 000000' \
+              timeout 600 'swaymsg "output * dpms off"' \
+                   resume 'swaymsg "output * dpms on"' \
+              before-sleep 'swaylock -f -c 000000'
+          '';
+        }
+      ];
+    };
+  };
   # This value determines the Home Manager release that your
   # configuration is compatible with. This helps avoid breakage when a
   # new Home Manager release introduces backwards incompatible changes.
