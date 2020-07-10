@@ -84,6 +84,8 @@
     enable = true;
     textColor = "#ebdbb2";
     backgroundColor = "#282828";
+    borderSize = 0;
+    defaultTimeout = 2000;
   };
 
 
