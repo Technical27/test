@@ -136,7 +136,6 @@
     enable = true;
     shellInit = ''
       set FZF_DEFAULT_OPTS '--color bg+:-1'
-      set SHELL 'bash'
       set EDITOR 'nvim'
     '';
     shellAliases = {
