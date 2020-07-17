@@ -93,7 +93,7 @@ in {
   programs.firefox.enable   = true;
   programs.firefox.package  = pkgs.firefox-wayland;
 
-  programs.mako = lib.optionals isLaptop {
+  programs.mako = lib.mkIf isLaptop {
     enable = true;
     textColor = "#ebdbb2";
     backgroundColor = "#282828";
@@ -104,7 +104,7 @@ in {
 
   xsession.preferStatusNotifierItems = true;
   services.lorri.enable = true;
-  services.redshift = {
+  services.redshift = lib.mkIf isLaptop {
     enable = true;
     latitude = "33.748";
     longitude = "-84.387";
@@ -172,6 +172,7 @@ in {
       set -g fish_color_selection 'white' '--bold'  '--background=brblack'
       set -g fish_color_user brgreen
       set -g fish_color_valid_path --underline
+
       fish_vi_key_bindings
     '';
     interactiveShellInit = "source (jump shell fish | psub)";
@@ -181,7 +182,7 @@ in {
     };
   };
 
-  wayland.windowManager.sway = lib.optionals isLaptop {
+  wayland.windowManager.sway = lib.mkIf isLaptop {
     enable = true;
     extraConfig = ''
       seat seat0 xcursor_theme default 48
