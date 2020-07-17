@@ -1,6 +1,10 @@
 { config, pkgs, lib, ... }:
 
-{
+let
+  device = import ~/.device.nix;
+  isLaptop = device == "laptop";
+  isDesktop = device == "desktop";
+in {
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
 
@@ -9,7 +13,6 @@
     nerdfonts
     yadm
     niv
-    wl-clipboard
     gsettings-desktop-schemas
     xdg_utils
 
@@ -21,8 +24,8 @@
     nix-index
     neofetch
     steam
-    zoom-us
-
+    jump
+  ] ++ lib.optionals isLaptop [
     #sway stuff
     swaylock
     swayidle
@@ -31,6 +34,17 @@
     wofi
     brightnessctl
     libappindicator-gtk3
+    wl-clipboard
+
+    zoom-us
+  ] ++ lib.optionals isDesktop [
+    gnomeExtensions.caffeine
+    gnome3.gnome-tweaks
+    pop-shell
+    lutris
+    razergenie
+    virt-manager
+    openrgb
   ];
 
   xdg.mimeApps.enable = true;
@@ -79,8 +93,7 @@
   programs.firefox.enable   = true;
   programs.firefox.package  = pkgs.firefox-wayland;
 
-
-  programs.mako = {
+  programs.mako = lib.optionals isLaptop {
     enable = true;
     textColor = "#ebdbb2";
     backgroundColor = "#282828";
@@ -137,13 +150,38 @@
     shellInit = ''
       set FZF_DEFAULT_OPTS '--color bg+:-1'
       set EDITOR 'nvim'
+
+      set -g fish_color_autosuggestion '555'  'brblack'
+      set -g fish_color_cancel -r
+      set -g fish_color_command --bold
+      set -g fish_color_comment 'brblack'
+      set -g fish_color_cwd green
+      set -g fish_color_cwd_root red
+      set -g fish_color_end brmagenta
+      set -g fish_color_error brred
+      set -g fish_color_escape 'bryellow'  '--bold'
+      set -g fish_color_history_current --bold
+      set -g fish_color_host normal
+      set -g fish_color_match --background=brblue
+      set -g fish_color_normal normal
+      set -g fish_color_operator bryellow
+      set -g fish_color_param cyan
+      set -g fish_color_quote yellow
+      set -g fish_color_redirection brblue
+      set -g fish_color_search_match 'bryellow'  '--background=brblack'
+      set -g fish_color_selection 'white' '--bold'  '--background=brblack'
+      set -g fish_color_user brgreen
+      set -g fish_color_valid_path --underline
+      fish_vi_key_bindings
     '';
+    interactiveShellInit = "source (jump shell fish | psub)";
     shellAliases = {
       make = "make -j8";
+      hme = "$EDITOR ~/.config/nixpkgs/home.nix";
     };
   };
 
-  wayland.windowManager.sway = {
+  wayland.windowManager.sway = lib.optionals isLaptop {
     enable = true;
     extraConfig = ''
       seat seat0 xcursor_theme default 48
