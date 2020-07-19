@@ -91,7 +91,7 @@ in {
   programs.bat.enable       = true;
   programs.htop.enable      = true;
   programs.firefox.enable   = true;
-  programs.firefox.package  = pkgs.firefox-wayland;
+  programs.firefox.package  = if isLaptop then pkgs.firefox-wayland else pkgs.firefox;
 
   programs.mako = lib.mkIf isLaptop {
     enable = true;
