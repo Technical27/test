@@ -25,6 +25,7 @@ in {
     neofetch
     steam
     jump
+    libreoffice
   ] ++ lib.optionals isLaptop [
     #sway stuff
     swaylock
@@ -40,11 +41,11 @@ in {
   ] ++ lib.optionals isDesktop [
     gnomeExtensions.caffeine
     gnome3.gnome-tweaks
-    pop-shell
     lutris
     razergenie
     virt-manager
     openrgb
+    liquidctl
   ];
 
   xdg.mimeApps.enable = true;
@@ -93,12 +94,19 @@ in {
   programs.firefox.enable   = true;
   programs.firefox.package  = if isLaptop then pkgs.firefox-wayland else pkgs.firefox;
 
+
+  programs.zathura = {
+    enable = true;
+    options = {
+      font = "'JetBrains Mono Regular Nerd Font Complete Mono' 13";
+    };
+  };
+
   programs.mako = lib.mkIf isLaptop {
     enable = true;
     textColor = "#ebdbb2";
     backgroundColor = "#282828";
     borderSize = 0;
-    defaultTimeout = 2000;
   };
 
 
@@ -178,6 +186,7 @@ in {
     interactiveShellInit = "source (jump shell fish | psub)";
     shellAliases = {
       make = "make -j8";
+      hm = "home-manager";
       hme = "$EDITOR ~/.config/nixpkgs/home.nix";
     };
   };
