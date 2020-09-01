@@ -8,11 +8,27 @@ in {
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
 
+  home.username = "aamaruvi";
+  home.homeDirectory = toString ~/.;
+
+  home.sessionVariables = rec {
+    MOZ_ENABLE_WAYLAND                  = "1";
+    MOZ_USE_XINPUT2                     = "1";
+    XDG_SESSION_TYPE                    = "wayland";
+    XDG_CURRENT_DESKTOP                 = "sway";
+    XCURSOR_PATH                        = toString ~/.local/share/icons;
+    SDL_VIDEODRIVER                     = "wayland";
+    QT_QPA_PLATFORM                     = "wayland-egl";
+    QT_WAYLAND_FORCE_DPI                = "physical";
+    QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
+  };
+
   home.packages = with pkgs; [
     ripgrep
     nerdfonts
     yadm
     niv
+    glib
     gsettings-desktop-schemas
     xdg_utils
 
@@ -26,26 +42,24 @@ in {
     steam
     jump
     libreoffice
+    gimp
   ] ++ lib.optionals isLaptop [
     #sway stuff
-    swaylock
-    swayidle
-    waybar
-    udiskie
+    sway-contrib.grimshot
     wofi
     brightnessctl
     libappindicator-gtk3
     wl-clipboard
-
     zoom-us
+    teams
   ] ++ lib.optionals isDesktop [
-    gnomeExtensions.caffeine
-    gnome3.gnome-tweaks
     lutris
     razergenie
     virt-manager
     openrgb
     liquidctl
+    obs-studio
+    olive-editor
   ];
 
   xdg.mimeApps.enable = true;
@@ -54,13 +68,12 @@ in {
       browser = [ "firefox.desktop" ];
       files = [ "ranger.desktop" ];
     in {
-      "text/html" = browser;
+      "text/html"                = browser;
 
       "x-scheme-handler/http"    = browser;
       "x-scheme-handler/https"   = browser;
-      "x-scheme-handler/about"   = browser;
-      "x-scheme-handler/unknown" = browser;
-      "inode/directory" = files;
+      "x-scheme-handler/msteams" = "teams.desktop";
+      "inode/directory"          = files;
     };
 
   programs.neovim = {
@@ -76,9 +89,10 @@ in {
       vim-fugitive
       vim-snippets
       vim-lastplace
-      auto-pairs
+      vim-sensible
       coc-fzf
-      sensible
+      lexima-vim
+      vim-move
       commentary
       vim-lion
     ];
@@ -98,17 +112,20 @@ in {
   programs.zathura = {
     enable = true;
     options = {
-      font = "'JetBrains Mono Regular Nerd Font Complete Mono' 13";
+      font = "'JetBrains Mono NerdFont' 13";
+      default-bg = "#282828";
+      defualt-fg = "#ebdbb2";
+      statusbar-bg = "#282828";
+      statusbar-fg = "#ebdbb2";
+      statusbar-home-tilde = true;
     };
   };
-
   programs.mako = lib.mkIf isLaptop {
     enable = true;
     textColor = "#ebdbb2";
     backgroundColor = "#282828";
     borderSize = 0;
   };
-
 
   xsession.preferStatusNotifierItems = true;
   services.lorri.enable = true;
@@ -145,7 +162,7 @@ in {
     };
 
     extraConfig = {
-      pull = { rebase = false; };
+      pull = { rebase = true; };
       credential = {
         helper = "/home/aamaruvi/.nix-profile/bin/git-credential-libsecret";
       };
@@ -158,6 +175,7 @@ in {
     shellInit = ''
       set FZF_DEFAULT_OPTS '--color bg+:-1'
       set EDITOR 'nvim'
+      set XDG_DATA_DIRS "${pkgs.gsettings-desktop-schemas}/share/gsettings-schemas/${pkgs.gsettings-desktop-schemas.name}:$XDG_DATA_DIRS"
 
       set -g fish_color_autosuggestion '555'  'brblack'
       set -g fish_color_cancel -r
@@ -192,24 +210,14 @@ in {
   };
 
   wayland.windowManager.sway = lib.mkIf isLaptop {
+    package = lib.mkForce null;
     enable = true;
     extraConfig = ''
-      seat seat0 xcursor_theme default 48
+      seat seat0 xcursor_theme WhiteSur-cursors 48
       default_border none
     '';
     wrapperFeatures.gtk = true;
-    xwayland = true;
     systemdIntegration = false;
-    extraSessionCommands = ''
-      # wayland stuff
-      export SDL_VIDEODRIVER=wayland
-      export QT_QPA_PLATFORM=wayland-egl
-      export QT_WAYLAND_FORCE_DPI=physical
-      export QT_WAYLAND_DISABLE_WINDOWDECORATION=1
-
-      # get apps to display tray icons
-      export XDG_CURRENT_DESKTOP=Unity
-    '';
 
     config = {
       output = {
@@ -226,23 +234,36 @@ in {
           dwt = "enabled";
         };
       };
-      bars = [{ command = "${pkgs.waybar}/bin/waybar"; }];
       gaps.inner = 10;
       terminal = "kitty";
       modifier = "Mod4";
       menu = "wofi --show drun";
-      startup = [
+      bars = [{ command = "${pkgs.waybar}/bin/waybar"; }];
+      startup = let
+        gnome-schema = "gsettings set org.gnome.desktop.interface";
+        swayidle = "${pkgs.swayidle}/bin/swayidle";
+        swaylock = "${pkgs.swaylock}/bin/swaylock";
+      in [
         {
           command = ''
-            exec swayidle -w \
-              timeout 300 'swaylock -f -c 000000' \
+            ${swayidle} -w \
+              timeout 300 '${swaylock} -f -c 000000' \
               timeout 600 'swaymsg "output * dpms off"' \
                 resume 'swaymsg "output * dpms on"' \
-              before-sleep 'swaylock -f -c 000000'
+              before-sleep '${swaylock} -f -c 000000'
           '';
         }
         {
-          command = "udiskie -a -n --appindicator";
+          command = "${pkgs.udiskie}/bin/udiskie -a -n --appindicator";
+        }
+        {
+          command = "${gnome-schema} cursor-theme 'WhiteSur-cursors'";
+        }
+        {
+          command = "${gnome-schema} cursor-size 48";
+        }
+        {
+          command = "${pkgs.pipewire}/bin/pipewire";
         }
       ];
       keybindings = let
@@ -265,5 +286,5 @@ in {
   # You can update Home Manager without changing this value. See
   # the Home Manager release notes for a list of state version
   # changes in each release.
-  home.stateVersion = "20.03";
+  home.stateVersion = "20.09";
 }

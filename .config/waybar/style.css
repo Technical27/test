@@ -1,10 +1,13 @@
 * {
+  /* `otf-font-awesome` is required to be installed for icons */
+  font-family: 'JetBrains Mono NerdFont';
+  font-size: 15px;
+  min-height: 0;
   border: none;
   border-radius: 0;
-  /* `otf-font-awesome` is required to be installed for icons */
-  font-family: 'JetBrainsMono Nerd Font';
-  font-size: 13px;
-  min-height: 0;
+  box-shadow: none;
+  text-shadow: none;
+  transition-duration: 0s;
 }
 
 window#waybar {
@@ -17,15 +20,6 @@ window#waybar {
 window#waybar.hidden {
   opacity: 0.2;
 }
-
-/*
-window#waybar.empty {
-    background-color: transparent;
-}
-window#waybar.solo {
-    background-color: #FFFFFF;
-}
-*/
 
 #workspaces button {
   padding: 0 5px;
@@ -64,10 +58,16 @@ window#waybar.solo {
 #network,
 #pulseaudio,
 #tray,
-#idle_inhibitor {
+#idle_inhibitor,
+#window,
+#workspaces {
   padding: 0 15px;
-  margin: 0 4px;
   color: #ebdbb2;
+}
+
+#workspaces,
+#tray {
+  padding: 0 10px;
 }
 
 @keyframes blink {

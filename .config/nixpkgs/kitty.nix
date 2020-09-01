@@ -9,7 +9,7 @@
     italic_font      JetBrains Mono Italic Nerd Font Complete Mono
     bold_italic_font JetBrains Mono Bold Italic Nerd Font Complete Mono
     font_size 13.0
-    disable_ligatures never
+    disable_ligatures cursor
     cursor_blink_interval 0
     enable_audio_bell no
 
