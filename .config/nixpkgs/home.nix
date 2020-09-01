@@ -35,7 +35,7 @@ in {
     ranger
 
     discord
-    minecraft
+    multimc
     killall
     nix-index
     neofetch
