@@ -11,26 +11,30 @@ in {
   home.username = "aamaruvi";
   home.homeDirectory = toString ~/.;
 
-  home.sessionVariables = rec {
-    MOZ_ENABLE_WAYLAND                  = "1";
-    MOZ_USE_XINPUT2                     = "1";
-    XDG_SESSION_TYPE                    = "wayland";
-    XDG_CURRENT_DESKTOP                 = "sway";
-    XCURSOR_PATH                        = toString ~/.local/share/icons;
-    SDL_VIDEODRIVER                     = "wayland";
-    QT_QPA_PLATFORM                     = "wayland-egl";
-    QT_WAYLAND_FORCE_DPI                = "physical";
+  home.sessionVariables = {
+    MOZ_ENABLE_WAYLAND = "1";
+    MOZ_USE_XINPUT2 = "1";
+    XDG_SESSION_TYPE = "wayland";
+    XDG_CURRENT_DESKTOP = "sway";
+    XCURSOR_PATH = toString ~/.local/share/icons;
+    SDL_VIDEODRIVER = "wayland";
+    QT_QPA_PLATFORM = "wayland-egl";
+    QT_WAYLAND_FORCE_DPI = "physical";
     QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
+    EDITOR = "nvim";
+    FZF_DEFAULT_OPTS = "--color bg+:-1";
   };
 
   home.packages = with pkgs; [
     ripgrep
     nerdfonts
-    yadm
     niv
+    rustup
+    leiningen
     glib
     gsettings-desktop-schemas
     xdg_utils
+    tldr
 
     ranger
 
@@ -43,6 +47,8 @@ in {
     jump
     libreoffice
     gimp
+    # get libreoffice spellchecking
+    hunspellDicts.en-us
   ] ++ lib.optionals isLaptop [
     #sway stuff
     sway-contrib.grimshot
@@ -68,45 +74,59 @@ in {
       browser = [ "firefox.desktop" ];
       files = [ "ranger.desktop" ];
     in {
-      "text/html"                = browser;
-
-      "x-scheme-handler/http"    = browser;
-      "x-scheme-handler/https"   = browser;
+      "text/html" = browser;
+      "x-scheme-handler/http" = browser;
+      "x-scheme-handler/https" = browser;
       "x-scheme-handler/msteams" = "teams.desktop";
-      "inode/directory"          = files;
+      "inode/directory" = files;
     };
 
   programs.neovim = {
     enable = true;
     plugins = with pkgs.vimPlugins; [
-      coc-nvim
       vim-airline
       vim-devicons
       fzf-vim
       vim-polyglot
-      gruvbox
+      gruvbox-community
       undotree
       vim-fugitive
       vim-snippets
       vim-lastplace
       vim-sensible
-      coc-fzf
       lexima-vim
       vim-move
       commentary
       vim-lion
+      conjure
+
+      # coc extensions
+      coc-nvim
+      coc-fzf
+      coc-smartf
+      coc-json
+      coc-css
+      coc-html
+      coc-lists
+      coc-snippets
+      coc-git
+      coc-rust-analyzer
+      coc-prettier
+      coc-tsserver
+      coc-tabnine
+      coc-eslint
     ];
     withNodeJs = true;
     withPython3 = true;
     extraConfig = import ./nvim.nix;
   };
 
-  programs.direnv.enable    = true;
-  programs.fzf.enable       = true;
-  programs.bat.enable       = true;
-  programs.htop.enable      = true;
-  programs.firefox.enable   = true;
-  programs.firefox.package  = if isLaptop then pkgs.firefox-wayland else pkgs.firefox;
+  programs.direnv.enable = true;
+  programs.fzf.enable = true;
+  programs.bat.enable = true;
+  programs.htop.enable = true;
+  programs.firefox.enable = true;
+  programs.firefox.package = if isLaptop then pkgs.firefox-wayland else pkgs.firefox;
 
 
   programs.zathura = {
@@ -124,7 +144,9 @@ in {
     enable = true;
     textColor = "#ebdbb2";
     backgroundColor = "#282828";
-    borderSize = 0;
+    borderSize = 10;
+    borderColor = "#8ec07c";
+    defaultTimeout = 10000;
   };
 
   xsession.preferStatusNotifierItems = true;
@@ -152,8 +174,8 @@ in {
   };
 
   programs.git = {
-    enable    = true;
-    userName  = "Aamaruvi Yogamani";
+    enable = true;
+    userName = "Aamaruvi Yogamani";
     userEmail = "38222826+Technical27@users.noreply.github.com";
 
     signing = {
@@ -173,8 +195,6 @@ in {
   programs.fish = {
     enable = true;
     shellInit = ''
-      set FZF_DEFAULT_OPTS '--color bg+:-1'
-      set EDITOR 'nvim'
       set XDG_DATA_DIRS "${pkgs.gsettings-desktop-schemas}/share/gsettings-schemas/${pkgs.gsettings-desktop-schemas.name}:$XDG_DATA_DIRS"
 
       set -g fish_color_autosuggestion '555'  'brblack'
@@ -206,6 +226,21 @@ in {
       make = "make -j8";
       hm = "home-manager";
       hme = "$EDITOR ~/.config/nixpkgs/home.nix";
+      icat = "kitty +kitten icat";
+    };
+  };
+
+  programs.waybar = lib.mkIf isLaptop {
+    enable = true;
+  };
+
+  gtk = {
+    enable = true;
+    # preferDark = true;
+    iconTheme = { name = "Papirus-Dark"; package = pkgs.papirus-icon-theme; };
+    # curosrTheme = { name = "WhiteSur-cursors"; };
+    gtk3.extraConfig = {
+      gtk-application-prefer-dark-theme = "1";
     };
   };
 
@@ -223,7 +258,7 @@ in {
       output = {
         "eDP-1" = {
           scale = "2";
-          bg = "~/Pictures/wallpaper.jpg fill";
+          bg = "#3c3836 solid_color";
         };
       };
       input = {
@@ -242,25 +277,28 @@ in {
       startup = let
         gnome-schema = "gsettings set org.gnome.desktop.interface";
         swayidle = "${pkgs.swayidle}/bin/swayidle";
-        swaylock = "${pkgs.swaylock}/bin/swaylock";
+        swaylock = "${pkgs.swaylock-effects}/bin/swaylock --screenshots --clock --fade-in 0.2 --grace 2 --effect-blur 7x5";
       in [
         {
           command = ''
             ${swayidle} -w \
-              timeout 300 '${swaylock} -f -c 000000' \
+              timeout 300 '${swaylock}' \
               timeout 600 'swaymsg "output * dpms off"' \
                 resume 'swaymsg "output * dpms on"' \
-              before-sleep '${swaylock} -f -c 000000'
+              before-sleep '${swaylock}'
           '';
-        }
-        {
-          command = "${pkgs.udiskie}/bin/udiskie -a -n --appindicator";
         }
         {
           command = "${gnome-schema} cursor-theme 'WhiteSur-cursors'";
         }
         {
           command = "${gnome-schema} cursor-size 48";
+        }
+        {
+          command = "${gnome-schema} icon-theme 'Papirus-Dark'";
+        }
+        {
+          command = "${pkgs.udiskie}/bin/udiskie -a -n --appindicator";
         }
         {
           command = "${pkgs.pipewire}/bin/pipewire";
@@ -276,6 +314,20 @@ in {
 
         "XF86MonBrightnessUp"   = "${brctl} 10%+";
         "XF86MonBrightnessDown" = "${brctl} 10%-";
+      };
+      modes = {
+        resize = {
+          "h" = "resize shrink width 10 px";
+          "j" = "resize grow height 10 px";
+          "k" = "resize shrink height 10 px";
+          "l" = "resize grow width 10 px";
+          "Shift+h" = "resize shrink width 50 px";
+          "Shift+j" = "resize grow height 50 px";
+          "Shift+k" = "resize shrink height 50 px";
+          "Shift+l" = "resize grow width 50 px";
+          "Escape" = "mode default";
+          "Return" = "mode default";
+        };
       };
     };
   };

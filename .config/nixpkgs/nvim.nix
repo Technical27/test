@@ -26,31 +26,19 @@ set mouse=a
 set undofile
 set background=dark
 
-let g:AutoPairsFlyMode    = 1
 let g:lion_squeeze_spaces = 1
 let g:gruvbox_italic      = 1
-
-let g:coc_global_extensions = [
-  \'coc-json',
-  \'coc-css',
-  \'coc-html',
-  \'coc-lists',
-  \'coc-snippets',
-  \'coc-syntax',
-  \'coc-emoji',
-  \'coc-git',
-  \'coc-rust-analyzer',
-  \'coc-prettier',
-  \'coc-tsserver',
-  \'coc-tabnine',
-  \'coc-eslint',
-  \'coc-marketplace',
-  \]
 
 let g:airline#extensions#tabline#enabled     = 1
 let g:airline#extensions#tabline#tab_nr_type = 1
 let g:airline_powerline_fonts                = 1
 let g:airline#extensions#tabline#formatter   = 'unique_tail_improved'
+
+if ($TERM == "xterm-kitty")
+  let g:coc_snippet_next = '<S-CR>'
+else
+  let g:coc_snippet_next = '<M-CR>'
+endif
 
 function! Fzf_dev() abort
   let s:fzf_files_options =
@@ -134,10 +122,12 @@ inoremap <silent><expr> <TAB>
       \ pumvisible() ? "\<C-n>" :
       \ <SID>check_back_space() ? "\<TAB>" :
       \ coc#refresh()
-inoremap <expr> <S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+inoremap <silent><expr> <c-space> coc#refresh()
 inoremap <expr> <cr> complete_info()["selected"] != "-1" ? "\<C-y>" : "\<C-g>u\<CR>"
-nnoremap <expr><silent> K <SID>show_documentation()<CR>
+nnoremap <silent> K :call <SID>show_documentation()<CR>
 
+" I will probably never record a macro
 nnoremap q <nop>
 
 augroup Buffer
@@ -152,6 +142,17 @@ augroup Color
                     \ | hi link CocErrorSign GruvboxRed
                     \ | hi link CocWarningSign GruvboxOrange
                     \ | hi link CocInfoSign GruvboxYellow
+augroup end
+
+nmap f <Plug>(coc-smartf-forward)
+nmap F <Plug>(coc-smartf-backward)
+nmap ; <Plug>(coc-smartf-repeat)
+nmap , <Plug>(coc-smartf-repeat-opposite)
+
+augroup Smartf
+  autocmd!
+  autocmd User SmartfEnter :hi link Conceal GruvboxAqua
+  autocmd User SmartfLeave :hi link Conceal GruvboxGray
 augroup end
 
 colorscheme gruvbox

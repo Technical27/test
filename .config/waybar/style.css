@@ -39,7 +39,7 @@ window#waybar.hidden {
 }
 
 #workspaces button.urgent {
-  background-color: #eb4d4b;
+  background-color: #8ec07c;
 }
 
 #mode {
@@ -47,6 +47,14 @@ window#waybar.hidden {
   color: #282828;
   padding: 0 10px;
   margin: 0 4px;
+}
+
+#workspaces {
+  padding-left: 10px;
+}
+
+#tray {
+  padding-right: 10px;
 }
 
 #clock,
@@ -65,11 +73,6 @@ window#waybar.hidden {
   color: #ebdbb2;
 }
 
-#workspaces,
-#tray {
-  padding: 0 10px;
-}
-
 @keyframes blink {
   to {
     background-color: #ebdbb2;
@@ -78,7 +81,7 @@ window#waybar.hidden {
 }
 
 #battery.critical:not(.charging) {
-  background-color: #cc241d;
+  background-color: #fb4934;
   color: #ebdbb2;
   animation-name: blink;
   animation-duration: 0.5s;
