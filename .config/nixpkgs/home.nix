@@ -9,21 +9,7 @@ in {
   programs.home-manager.enable = true;
 
   home.username = "aamaruvi";
-  home.homeDirectory = toString ~/.;
-
-  home.sessionVariables = {
-    MOZ_ENABLE_WAYLAND = "1";
-    MOZ_USE_XINPUT2 = "1";
-    XDG_SESSION_TYPE = "wayland";
-    XDG_CURRENT_DESKTOP = "sway";
-    XCURSOR_PATH = toString ~/.local/share/icons;
-    SDL_VIDEODRIVER = "wayland";
-    QT_QPA_PLATFORM = "wayland-egl";
-    QT_WAYLAND_FORCE_DPI = "physical";
-    QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
-    EDITOR = "nvim";
-    FZF_DEFAULT_OPTS = "--color bg+:-1";
-  };
+  home.homeDirectory = toString /home/aamaruvi;
 
   home.packages = with pkgs; [
     ripgrep
@@ -34,7 +20,13 @@ in {
     glib
     gsettings-desktop-schemas
     xdg_utils
+    libnotify
+    dotnet-sdk
+    gnumake
+    gcc
     tldr
+    nodejs
+    yarn
 
     ranger
 
@@ -126,31 +118,60 @@ in {
   programs.bat.enable = true;
   programs.htop.enable = true;
   programs.firefox.enable = true;
-  programs.firefox.package = if isLaptop then pkgs.firefox-wayland else pkgs.firefox;
-
 
   programs.zathura = {
     enable = true;
     options = {
       font = "'JetBrains Mono NerdFont' 13";
       default-bg = "#282828";
-      defualt-fg = "#ebdbb2";
       statusbar-bg = "#282828";
       statusbar-fg = "#ebdbb2";
       statusbar-home-tilde = true;
+      window-title-home-tilde = true;
     };
   };
+
   programs.mako = lib.mkIf isLaptop {
     enable = true;
     textColor = "#ebdbb2";
     backgroundColor = "#282828";
-    borderSize = 10;
+    borderSize = 5;
     borderColor = "#8ec07c";
     defaultTimeout = 10000;
   };
 
   xsession.preferStatusNotifierItems = true;
   services.lorri.enable = true;
+  services.udiskie.enable = isLaptop;
+  services.kanshi = lib.mkIf isLaptop {
+    enable = true;
+    systemdTarget = "graphical-session.target";
+    profiles = {
+      main = {
+        outputs = [
+          {
+            criteria = "eDP-1";
+            status = "enable";
+            scale = 2.0;
+          }
+        ];
+      };
+      monitor = {
+        outputs = [
+          {
+            criteria = "eDP-1";
+            status = "disable";
+          }
+          {
+            criteria = "DP-2";
+            status = "enable";
+            scale = 1.0;
+            mode = "2560x1440@60Hz";
+          }
+        ];
+      };
+    };
+  };
   services.redshift = lib.mkIf isLaptop {
     enable = true;
     latitude = "33.748";
@@ -192,6 +213,7 @@ in {
 
     package = pkgs.gitFull;
   };
+
   programs.fish = {
     enable = true;
     shellInit = ''
@@ -230,15 +252,9 @@ in {
     };
   };
 
-  programs.waybar = lib.mkIf isLaptop {
-    enable = true;
-  };
-
   gtk = {
     enable = true;
-    # preferDark = true;
     iconTheme = { name = "Papirus-Dark"; package = pkgs.papirus-icon-theme; };
-    # curosrTheme = { name = "WhiteSur-cursors"; };
     gtk3.extraConfig = {
       gtk-application-prefer-dark-theme = "1";
     };
@@ -250,24 +266,21 @@ in {
     extraConfig = ''
       seat seat0 xcursor_theme WhiteSur-cursors 48
       default_border none
+      for_window [title="^Firefox - Sharing Indicator$"] floating enable
     '';
     wrapperFeatures.gtk = true;
     systemdIntegration = false;
 
     config = {
-      output = {
-        "eDP-1" = {
-          scale = "2";
-          bg = "#3c3836 solid_color";
-        };
+      output."eDP-1" = {
+        scale = "2";
+        bg = "#3c3836 solid_color";
       };
-      input = {
-        "1739:30383:DELL07E6:00_06CB:76AF_Touchpad" = {
-          tap = "enabled";
-          natural_scroll = "enabled";
-          pointer_accel = "0.3";
-          dwt = "enabled";
-        };
+      input."1739:30383:DELL07E6:00_06CB:76AF_Touchpad" = {
+        tap = "enabled";
+        natural_scroll = "enabled";
+        pointer_accel = "0.3";
+        dwt = "enabled";
       };
       gaps.inner = 10;
       terminal = "kitty";
@@ -277,7 +290,7 @@ in {
       startup = let
         gnome-schema = "gsettings set org.gnome.desktop.interface";
         swayidle = "${pkgs.swayidle}/bin/swayidle";
-        swaylock = "${pkgs.swaylock-effects}/bin/swaylock --screenshots --clock --fade-in 0.2 --grace 2 --effect-blur 7x5";
+        swaylock = "${pkgs.swaylock-effects}/bin/swaylock --daemonize --screenshots --clock --fade-in 0.2 --effect-blur 7x5";
       in [
         {
           command = ''
@@ -300,9 +313,6 @@ in {
         {
           command = "${pkgs.udiskie}/bin/udiskie -a -n --appindicator";
         }
-        {
-          command = "${pkgs.pipewire}/bin/pipewire";
-        }
       ];
       keybindings = let
         amixer = "exec amixer -q set Master";
@@ -314,6 +324,8 @@ in {
 
         "XF86MonBrightnessUp"   = "${brctl} 10%+";
         "XF86MonBrightnessDown" = "${brctl} 10%-";
+
+        "Mod4+e" = "exec firefox";
       };
       modes = {
         resize = {

@@ -15,6 +15,7 @@ window#waybar {
   color: #ebdbb2;
   transition-property: background-color;
   transition-duration: 0.5s;
+  /* border: 2px solid #8ec07c; */
 }
 
 window#waybar.hidden {
@@ -24,18 +25,18 @@ window#waybar.hidden {
 #workspaces button {
   padding: 0 5px;
   background-color: transparent;
-  color: #ebdbb2;
+  color: #504945;
   border-bottom: 3px solid transparent;
 }
 
 /* https://github.com/Alexays/Waybar/wiki/FAQ#the-workspace-buttons-have-a-strange-hover-effect */
 #workspaces button:hover {
   box-shadow: inherit;
-  border-bottom: 3px solid #ebdbb2;
+  color: #ebdbb2;
 }
 
 #workspaces button.focused {
-  border-bottom: 3px solid #ebdbb2;
+  color: #ebdbb2;
 }
 
 #workspaces button.urgent {
