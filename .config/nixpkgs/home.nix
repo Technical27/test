@@ -15,18 +15,12 @@ in {
     ripgrep
     nerdfonts
     niv
-    rustup
-    leiningen
     glib
+    nodejs
     gsettings-desktop-schemas
     xdg_utils
     libnotify
-    dotnet-sdk
-    gnumake
-    gcc
     tldr
-    nodejs
-    yarn
 
     ranger
 
@@ -163,7 +157,7 @@ in {
             status = "disable";
           }
           {
-            criteria = "DP-2";
+            criteria = "Dell Inc. Dell S2716DG JCVN089S0K9Q";
             status = "enable";
             scale = 1.0;
             mode = "2560x1440@60Hz";
@@ -183,9 +177,9 @@ in {
     enable = true;
     settings = {
       # annoying
-      nix_shell = { disabled = true; };
+      nix_shell.disabled = true;
       # very slow
-      haskell   = { disabled = true; };
+      haskell.disabled = true;
     };
   };
 
@@ -205,10 +199,8 @@ in {
     };
 
     extraConfig = {
-      pull = { rebase = true; };
-      credential = {
-        helper = "/home/aamaruvi/.nix-profile/bin/git-credential-libsecret";
-      };
+      pull.rebase = true;
+      credential.helper = "/home/aamaruvi/.nix-profile/bin/git-credential-libsecret";
     };
 
     package = pkgs.gitFull;
@@ -250,11 +242,14 @@ in {
       hme = "$EDITOR ~/.config/nixpkgs/home.nix";
       icat = "kitty +kitten icat";
     };
+    functions.fish_greeting = "node ~/git/info/index.js";
   };
 
-  gtk = {
+  gtk = lib.mkIf isLaptop {
     enable = true;
     iconTheme = { name = "Papirus-Dark"; package = pkgs.papirus-icon-theme; };
+    # cursorTheme = { name = "WhiteSur-cursors"; package = null; };
+    theme = { name = "arc-gruvbox-dark"; package = pkgs.gruvbox-gtk; };
     gtk3.extraConfig = {
       gtk-application-prefer-dark-theme = "1";
     };
@@ -274,13 +269,13 @@ in {
     config = {
       output."eDP-1" = {
         scale = "2";
-        bg = "#3c3836 solid_color";
+        bg = "~/Pictures/wallpaper.png fill";
       };
       input."1739:30383:DELL07E6:00_06CB:76AF_Touchpad" = {
         tap = "enabled";
         natural_scroll = "enabled";
         pointer_accel = "0.3";
-        dwt = "enabled";
+        dwt = "disabled";
       };
       gaps.inner = 10;
       terminal = "kitty";
@@ -288,7 +283,6 @@ in {
       menu = "wofi --show drun";
       bars = [{ command = "${pkgs.waybar}/bin/waybar"; }];
       startup = let
-        gnome-schema = "gsettings set org.gnome.desktop.interface";
         swayidle = "${pkgs.swayidle}/bin/swayidle";
         swaylock = "${pkgs.swaylock-effects}/bin/swaylock --daemonize --screenshots --clock --fade-in 0.2 --effect-blur 7x5";
       in [
@@ -302,16 +296,10 @@ in {
           '';
         }
         {
-          command = "${gnome-schema} cursor-theme 'WhiteSur-cursors'";
-        }
-        {
-          command = "${gnome-schema} cursor-size 48";
-        }
-        {
-          command = "${gnome-schema} icon-theme 'Papirus-Dark'";
-        }
-        {
           command = "${pkgs.udiskie}/bin/udiskie -a -n --appindicator";
+        }
+        {
+          command = "${pkgs.libinput-gestures}/bin/libinput-gestures";
         }
       ];
       keybindings = let
@@ -327,19 +315,17 @@ in {
 
         "Mod4+e" = "exec firefox";
       };
-      modes = {
-        resize = {
-          "h" = "resize shrink width 10 px";
-          "j" = "resize grow height 10 px";
-          "k" = "resize shrink height 10 px";
-          "l" = "resize grow width 10 px";
-          "Shift+h" = "resize shrink width 50 px";
-          "Shift+j" = "resize grow height 50 px";
-          "Shift+k" = "resize shrink height 50 px";
-          "Shift+l" = "resize grow width 50 px";
-          "Escape" = "mode default";
-          "Return" = "mode default";
-        };
+      modes.resize = {
+        "h" = "resize shrink width 10 px";
+        "j" = "resize shrink height 10 px";
+        "k" = "resize grow height 10 px";
+        "l" = "resize grow width 10 px";
+        "Shift+h" = "resize shrink width 50 px";
+        "Shift+j" = "resize shrink height 50 px";
+        "Shift+k" = "resize grow height 50 px";
+        "Shift+l" = "resize grow width 50 px";
+        "Escape" = "mode default";
+        "Return" = "mode default";
       };
     };
   };
