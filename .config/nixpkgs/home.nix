@@ -136,7 +136,6 @@ in {
 
   xsession.preferStatusNotifierItems = true;
   services.lorri.enable = true;
-  services.udiskie.enable = isLaptop;
   services.kanshi = lib.mkIf isLaptop {
     enable = true;
     systemdTarget = "graphical-session.target";

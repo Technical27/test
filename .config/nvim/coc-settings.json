@@ -1,0 +1,39 @@
+{
+  "coc.source.emoji.filetypes": ["gitcommit", "markdown"],
+  "coc.preferences.formatOnSaveFiletypes": [
+    "javascript",
+    "vue",
+    "html",
+    "css",
+    "json",
+    "rust",
+    "cpp"
+  ],
+  "prettier.singleQuote": true,
+  "languageserver": {
+    "ccls": {
+      "command": "ccls",
+      "filetypes": ["c", "cpp", "cuda", "objc", "objcpp"],
+      "rootPatterns": [".ccls-root", "compile_commands.json", ".ccls"],
+      "initializationOptions": {
+        "cache": {
+          "directory": "/tmp/ccls-cache"
+        }
+      }
+    },
+    "kotlin": {
+      "command": "~/kls/server/build/install/server/bin/kotlin-language-server",
+      "filetypes": ["kotlin"]
+    }
+  },
+  "signature.maxWindowHeight": 16,
+  "suggest.noselect": false,
+  "eslint.autoFixOnSave": true,
+  "eslint.filetypes": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "vue"
+  ]
+}
