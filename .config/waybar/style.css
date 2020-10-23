@@ -32,6 +32,7 @@ window#waybar.hidden {
 /* https://github.com/Alexays/Waybar/wiki/FAQ#the-workspace-buttons-have-a-strange-hover-effect */
 #workspaces button:hover {
   box-shadow: inherit;
+  background-color: #282828;
   color: #ebdbb2;
 }
 
@@ -69,7 +70,8 @@ window#waybar.hidden {
 #tray,
 #idle_inhibitor,
 #window,
-#workspaces {
+#workspaces,
+#custom-nixos {
   padding: 0 15px;
   color: #ebdbb2;
 }
@@ -106,5 +108,24 @@ label:focus {
 
 #idle_inhibitor.activated {
   background-color: #ebdbb2;
+  color: #282828;
+}
+
+#custom-nixos.error {
+  background-color: #fb4934;
+  color: #ebdbb2;
+  animation-name: blink;
+  animation-duration: 0.5s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+#custom-nixos.offline {
+  background-color: #fb4934;
+}
+
+#custom-nixos.update-available {
+  background-color: #fabd2f;
   color: #282828;
 }

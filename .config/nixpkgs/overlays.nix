@@ -9,5 +9,8 @@ in [
 ] ++ (if isDeskop then [
   (self: super: { liquidctl = super.callPackage /home/aamaruvi/pkgs/liquidctl.nix {}; })
   ] else [
-  (self: super: { gruvbox-gtk = super.callPackage /home/aamaruvi/pkgs/gruvbox-gtk.nix {}; })
+    (self: super: {
+      gruvbox-gtk = super.callPackage /home/aamaruvi/pkgs/gruvbox-gtk.nix {};
+      gruvbox-icons = super.callPackage /home/aamaruvi/pkgs/gruvbox-icons.nix {};
+    })
 ])

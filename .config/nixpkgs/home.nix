@@ -17,6 +17,7 @@ in {
     niv
     glib
     nodejs
+    ruby
     gsettings-desktop-schemas
     xdg_utils
     libnotify
@@ -246,9 +247,9 @@ in {
 
   gtk = lib.mkIf isLaptop {
     enable = true;
-    iconTheme = { name = "Papirus-Dark"; package = pkgs.papirus-icon-theme; };
+    iconTheme = { name = "gruvbox-dark"; package = pkgs.gruvbox-icons; };
     # cursorTheme = { name = "WhiteSur-cursors"; package = null; };
-    theme = { name = "arc-gruvbox-dark"; package = pkgs.gruvbox-gtk; };
+    theme = { name = "gruvbox-dark"; package = pkgs.gruvbox-gtk; };
     gtk3.extraConfig = {
       gtk-application-prefer-dark-theme = "1";
     };
