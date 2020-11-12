@@ -3,6 +3,7 @@
 let
   device = import ~/.device.nix;
   isLaptop = device == "laptop";
+  mkLaptop = obj: lib.mkIf isLaptop obj;
   isDesktop = device == "desktop";
 in {
   # Let Home Manager install and manage itself.
@@ -17,11 +18,11 @@ in {
     niv
     glib
     nodejs
-    ruby
     gsettings-desktop-schemas
     xdg_utils
     libnotify
     tldr
+    imv
 
     ranger
 
@@ -34,6 +35,7 @@ in {
     jump
     libreoffice
     gimp
+    bpytop
     # get libreoffice spellchecking
     hunspellDicts.en-us
   ] ++ lib.optionals isLaptop [
@@ -68,7 +70,10 @@ in {
       "inode/directory" = files;
     };
 
-  programs.neovim = {
+  programs.neovim =
+  let
+    vim-context = import ~/pkgs/context-vim.nix { inherit pkgs; };
+  in {
     enable = true;
     plugins = with pkgs.vimPlugins; [
       vim-airline
@@ -86,6 +91,7 @@ in {
       commentary
       vim-lion
       conjure
+      vim-context
 
       # coc extensions
       coc-nvim
@@ -100,7 +106,7 @@ in {
       coc-rust-analyzer
       coc-prettier
       coc-tsserver
-      coc-tabnine
+      # coc-tabnine
       coc-eslint
     ];
     withNodeJs = true;
@@ -111,7 +117,6 @@ in {
   programs.direnv.enable = true;
   programs.fzf.enable = true;
   programs.bat.enable = true;
-  programs.htop.enable = true;
   programs.firefox.enable = true;
 
   programs.zathura = {
@@ -126,7 +131,7 @@ in {
     };
   };
 
-  programs.mako = lib.mkIf isLaptop {
+  programs.mako = mkLaptop {
     enable = true;
     textColor = "#ebdbb2";
     backgroundColor = "#282828";
@@ -137,7 +142,7 @@ in {
 
   xsession.preferStatusNotifierItems = true;
   services.lorri.enable = true;
-  services.kanshi = lib.mkIf isLaptop {
+  services.kanshi = mkLaptop {
     enable = true;
     systemdTarget = "graphical-session.target";
     profiles = {
@@ -166,11 +171,12 @@ in {
       };
     };
   };
-  services.redshift = lib.mkIf isLaptop {
+
+  services.gammastep = mkLaptop {
     enable = true;
     latitude = "33.748";
     longitude = "-84.387";
-    package = pkgs.redshift-wlr;
+    temperature.night = 4500;
   };
 
   programs.starship = {
@@ -245,7 +251,7 @@ in {
     functions.fish_greeting = "node ~/git/info/index.js";
   };
 
-  gtk = lib.mkIf isLaptop {
+  gtk = mkLaptop {
     enable = true;
     iconTheme = { name = "gruvbox-dark"; package = pkgs.gruvbox-icons; };
     # cursorTheme = { name = "WhiteSur-cursors"; package = null; };
@@ -255,7 +261,7 @@ in {
     };
   };
 
-  wayland.windowManager.sway = lib.mkIf isLaptop {
+  wayland.windowManager.sway = mkLaptop {
     package = lib.mkForce null;
     enable = true;
     extraConfig = ''
@@ -297,9 +303,6 @@ in {
         }
         {
           command = "${pkgs.udiskie}/bin/udiskie -a -n --appindicator";
-        }
-        {
-          command = "${pkgs.libinput-gestures}/bin/libinput-gestures";
         }
       ];
       keybindings = let

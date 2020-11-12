@@ -24,7 +24,25 @@ set termguicolors
 set showmatch
 set mouse=a
 set undofile
-set background=dark
+set grepprg="rg --vimgrep"
+
+augroup Color
+  autocmd!
+  autocmd ColorScheme * hi clear SignColumn
+                    \ | hi link CocErrorSign GruvboxRed
+                    \ | hi link CocWarningSign GruvboxOrange
+                    \ | hi link CocInfoSign GruvboxYellow
+augroup end
+
+if (filereadable('~/.config/nvim/theme'))
+  if (readfile('~/.config/nvim/theme')[0] == 'dark')
+    set background=dark
+  else
+    set background=light
+  endif
+endif
+
+colorscheme gruvbox
 
 let g:lion_squeeze_spaces = 1
 let g:gruvbox_italic      = 1
@@ -41,8 +59,9 @@ else
 endif
 
 function! Fzf_dev() abort
+  let s:bat_theme = &background == 'dark' ? 'gruvbox' : 'gruvbox-light'
   let s:fzf_files_options =
-        \'--preview "bat --theme="OneHalfDark" --style=numbers,changes --color always {2..-1} | head -'.&lines.'"'
+        \'--preview "bat --theme="'.s:bat_theme.'" --style=numbers,changes --color always {2..-1} | head -'.float2nr((&lines * 0.4) - 2).'"'
   let s:fzf_command = 'rg --files --hidden --follow --glob "!{.git,build,node_modules,target}"'
 
   function! s:get_open_files() abort
@@ -79,13 +98,13 @@ function! Fzf_dev() abort
  call fzf#run({
        \ 'source' : <sid>files(),
        \ 'sink'   : function('s:edit_file'),
-       \ 'options': '--color bg+:-1 -m ' . s:fzf_files_options,
+       \ 'options': '--color 16 -m ' . s:fzf_files_options,
        \ 'down'   : '40%' })
 endf
 
 function! s:check_back_space() abort
-  let col = col('.') - 1
-  return !col || getline('.')[col - 1]  =~# '\s'
+  let l:col = col('.') - 1
+  return !l:col || getline('.')[l:col - 1]  =~# '\s'
 endf
 
 function! s:show_documentation() abort
@@ -124,7 +143,7 @@ inoremap <silent><expr> <TAB>
       \ coc#refresh()
 inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 inoremap <silent><expr> <c-space> coc#refresh()
-inoremap <expr> <cr> complete_info()["selected"] != "-1" ? "\<C-y>" : "\<C-g>u\<CR>"
+inoremap <expr> <CR> complete_info()["selected"] != "-1" ? "\<C-y>" : "\<C-g>u\<CR>"
 nnoremap <silent> K :call <SID>show_documentation()<CR>
 
 " I will probably never record a macro
@@ -136,14 +155,6 @@ augroup Buffer
   autocmd CursorHold * silent call CocActionAsync('highlight')
 augroup end
 
-augroup Color
-  autocmd!
-  autocmd ColorScheme * hi clear SignColumn
-                    \ | hi link CocErrorSign GruvboxRed
-                    \ | hi link CocWarningSign GruvboxOrange
-                    \ | hi link CocInfoSign GruvboxYellow
-augroup end
-
 nmap f <Plug>(coc-smartf-forward)
 nmap F <Plug>(coc-smartf-backward)
 nmap ; <Plug>(coc-smartf-repeat)
@@ -151,9 +162,7 @@ nmap , <Plug>(coc-smartf-repeat-opposite)
 
 augroup Smartf
   autocmd!
-  autocmd User SmartfEnter :hi link Conceal GruvboxAqua
+  autocmd User SmartfEnter :hi link Conceal GruvboxYellow
   autocmd User SmartfLeave :hi link Conceal GruvboxGray
 augroup end
-
-colorscheme gruvbox
 ''

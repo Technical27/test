@@ -80,7 +80,7 @@
     },
     "custom/nixos": {
         "return-type": "json",
-        "interval": 60,
-        "exec": "$HOME/git/bar/exe/bar"
+        "interval": 120,
+        "exec": "node $HOME/git/info/index.js --bar"
     }
 }
