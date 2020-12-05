@@ -12,13 +12,13 @@ in {
   home.username = "aamaruvi";
   home.homeDirectory = toString /home/aamaruvi;
 
-  home.packages = with pkgs; [
+  home.packages = with pkgs; let
+    JBMono = nerdfonts.override { fonts = ["JetBrainsMono"]; };
+  in [
     ripgrep
-    nerdfonts
+    JBMono
     niv
-    glib
     nodejs
-    gsettings-desktop-schemas
     xdg_utils
     libnotify
     tldr
@@ -43,7 +43,7 @@ in {
     sway-contrib.grimshot
     wofi
     brightnessctl
-    libappindicator-gtk3
+    pavucontrol
     wl-clipboard
     zoom-us
     teams
@@ -92,11 +92,11 @@ in {
       vim-lion
       conjure
       vim-context
+      vim-easymotion
 
       # coc extensions
       coc-nvim
       coc-fzf
-      coc-smartf
       coc-json
       coc-css
       coc-html
@@ -106,7 +106,7 @@ in {
       coc-rust-analyzer
       coc-prettier
       coc-tsserver
-      # coc-tabnine
+      coc-tabnine
       coc-eslint
     ];
     withNodeJs = true;
@@ -117,7 +117,10 @@ in {
   programs.direnv.enable = true;
   programs.fzf.enable = true;
   programs.bat.enable = true;
-  programs.firefox.enable = true;
+  programs.firefox = {
+    enable = true;
+    package = import ~/pkgs/firefox.nix { inherit (pkgs) wrapFirefox firefox-unwrapped fetchFirefoxAddon; };
+  };
 
   programs.zathura = {
     enable = true;
@@ -267,7 +270,7 @@ in {
     extraConfig = ''
       seat seat0 xcursor_theme WhiteSur-cursors 48
       default_border none
-      for_window [title="^Firefox - Sharing Indicator$"] floating enable
+      for_window [title="^Firefox — Sharing Indicator$"] floating enable
     '';
     wrapperFeatures.gtk = true;
     systemdIntegration = false;
@@ -286,7 +289,7 @@ in {
       gaps.inner = 10;
       terminal = "kitty";
       modifier = "Mod4";
-      menu = "wofi --show drun";
+      menu = "wofi --show drun | sed 's/%.//g' | xargs swaymsg exec --";
       bars = [{ command = "${pkgs.waybar}/bin/waybar"; }];
       startup = let
         swayidle = "${pkgs.swayidle}/bin/swayidle";
@@ -303,6 +306,9 @@ in {
         }
         {
           command = "${pkgs.udiskie}/bin/udiskie -a -n --appindicator";
+        }
+        {
+          command = "blueman-applet";
         }
       ];
       keybindings = let
@@ -323,10 +329,12 @@ in {
         "j" = "resize shrink height 10 px";
         "k" = "resize grow height 10 px";
         "l" = "resize grow width 10 px";
+
         "Shift+h" = "resize shrink width 50 px";
         "Shift+j" = "resize shrink height 50 px";
         "Shift+k" = "resize grow height 50 px";
         "Shift+l" = "resize grow width 50 px";
+
         "Escape" = "mode default";
         "Return" = "mode default";
       };

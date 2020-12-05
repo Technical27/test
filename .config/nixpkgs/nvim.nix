@@ -1,5 +1,27 @@
 # vim: set ft=vim:
 ''
+augroup Color
+  autocmd!
+  autocmd ColorScheme * hi clear SignColumn
+augroup end
+
+colorscheme gruvbox
+
+let s:theme_file = glob("~/.config/nvim/theme")
+
+if (filereadable(s:theme_file))
+  if (readfile(s:theme_file)[0] == "dark")
+    set background=dark
+  else
+    set background=light
+  endif
+else
+  echo "failed to read theme file"
+  set background=dark
+endif
+
+let $BAT_THEME = &background == 'dark' ? 'gruvbox' : 'gruvbox-light'
+
 set number
 set hidden
 set nobackup
@@ -26,24 +48,6 @@ set mouse=a
 set undofile
 set grepprg="rg --vimgrep"
 
-augroup Color
-  autocmd!
-  autocmd ColorScheme * hi clear SignColumn
-                    \ | hi link CocErrorSign GruvboxRed
-                    \ | hi link CocWarningSign GruvboxOrange
-                    \ | hi link CocInfoSign GruvboxYellow
-augroup end
-
-if (filereadable('~/.config/nvim/theme'))
-  if (readfile('~/.config/nvim/theme')[0] == 'dark')
-    set background=dark
-  else
-    set background=light
-  endif
-endif
-
-colorscheme gruvbox
-
 let g:lion_squeeze_spaces = 1
 let g:gruvbox_italic      = 1
 
@@ -59,9 +63,8 @@ else
 endif
 
 function! Fzf_dev() abort
-  let s:bat_theme = &background == 'dark' ? 'gruvbox' : 'gruvbox-light'
   let s:fzf_files_options =
-        \'--preview "bat --theme="'.s:bat_theme.'" --style=numbers,changes --color always {2..-1} | head -'.float2nr((&lines * 0.4) - 2).'"'
+        \'--preview "bat --style=numbers,changes --color always {2..-1} | head -'.float2nr((&lines * 0.4) - 2).'"'
   let s:fzf_command = 'rg --files --hidden --follow --glob "!{.git,build,node_modules,target}"'
 
   function! s:get_open_files() abort

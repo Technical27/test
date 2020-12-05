@@ -76,11 +76,12 @@
             "portable": "",
             "car": "",
             "default": ["", "", ""]
-        }
+        },
+        "on-click": "pavucontrol"
     },
     "custom/nixos": {
         "return-type": "json",
-        "interval": 120,
+        "interval": 600,
         "exec": "node $HOME/git/info/index.js --bar"
     }
 }
